@@ -1,25 +1,33 @@
 {
-  "name": "my-react-app",
-  "version": "0.0.1",
-  "private": true,
+  "name": "superhero-backend",
+  "version": "1.0.0",
+  "description": "Backend for Superhero CRUD app with Express, MongoDB, and Cloudinary",
+  "main": "dist/index.js",
+  "type": "commonjs",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
+  "author": "Roman Kovach",
+  "license": "MIT",
   "dependencies": {
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "mongoose": "^8.18.1",
-    "multer": "^2.0.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mongoose": "^7.8.7",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0"
   },
   "devDependencies": {
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.3",
-    "@vitejs/plugin-react": "^4.3.1",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.0"
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.23",
+    "@types/mongoose": "^5.11.97",
+    "@types/multer": "^1.4.13",
+    "@types/node": "^20.19.13",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
