@@ -1,0 +1,139 @@
+.hero-detail {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  font-family: "Arial", sans-serif;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.hero-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Карусель */
+.carousel {
+  flex: 1 1 300px;
+  position: relative;
+}
+
+.carousel-container {
+  position: relative;
+}
+
+.hero-image {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ff3b3b;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.carousel-btn.prev {
+  left: -20px;
+}
+.carousel-btn.next {
+  right: -20px;
+}
+
+.delete-image-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.hero-info {
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nickname {
+  display: inline-block;
+  background-color: #ff3b3b;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 28px;
+  font-weight: bold;
+  transform: skewX(-20deg);
+  margin-bottom: 10px;
+}
+
+.nickname span {
+  display: inline-block;
+  transform: skewX(20deg);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.edit-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.edit-btn:hover {
+  background-color: #0056b3;
+}
+
+.delete-btn {
+  background-color: #ff3b3b;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background-color: #c70000;
+}
+
+.status {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.status.error {
+  color: red;
+}
