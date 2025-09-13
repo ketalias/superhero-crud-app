@@ -10,13 +10,28 @@ import {
   deleteHeroImage,
 } from '../controllers/superheroController';
 
+import { validateSuperhero } from '../middlewares/validateSuperhero';
+import { validateFile } from '../middlewares/validateFile';
+
 const router = Router();
 const upload = multer({ storage });
 
 router.get('/', getAllSuperheroes);
 router.get('/:id', getSuperheroById);
-router.post('/', upload.array('images', 5), createSuperhero);
-router.put('/:id', upload.array('images', 5), updateSuperhero);
+router.post(
+  '/',
+  upload.array('images', 5), 
+  validateFile,              
+  validateSuperhero,        
+  createSuperhero            
+);
+router.put(
+  '/:id',
+  upload.array('images', 5),
+  validateFile,
+  validateSuperhero,
+  updateSuperhero
+);
 router.delete('/:id', deleteSuperhero);
 router.delete('/:id/image/:publicId', deleteHeroImage);
 

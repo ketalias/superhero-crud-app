@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-export const fileValidator = (req: Request, res: Response, next: NextFunction) => {
+export const validateFile = (req: Request, res: Response, next: NextFunction) => {
     const files = req.files as Express.Multer.File[] | undefined;
 
     if (!files || files.length === 0) {
@@ -23,3 +23,4 @@ export const fileValidator = (req: Request, res: Response, next: NextFunction) =
 
     next();
 };
+ 
