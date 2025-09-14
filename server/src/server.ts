@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import path from "path";
 import superheroRoutes from "./routes/superheroes";
 import { errorHandler } from './middlewares/errorHandler';
 
@@ -15,6 +16,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(errorHandler);
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/superheroes", superheroRoutes);
 

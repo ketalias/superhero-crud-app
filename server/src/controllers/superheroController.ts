@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { Superhero } from "../models/Superhero";
 import path from "path";
 import fs from "fs";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 interface IImage {
   url: string;
@@ -12,9 +15,9 @@ interface MulterRequest extends Request {
   files?: Express.Multer.File[];
 }
 
-const uploadDir = path.join(__dirname, "../uploads");
+const uploadDir = path.join(process.cwd(), "uploads");
+const BASE_URL = process.env.BASE_URL;
 
-// --- GET ---
 export const getAllSuperheroes = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = 5;
@@ -52,14 +55,13 @@ export const getSuperheroById = async (req: Request, res: Response) => {
   }
 };
 
-// --- CREATE ---
 export const createSuperhero = async (req: MulterRequest, res: Response) => {
   try {
     let newImages: IImage[] = [];
 
     if (req.files && req.files.length) {
       newImages = req.files.map((file) => ({
-        url: `/uploads/${file.filename}`,
+        url: `${BASE_URL}/uploads/${file.filename}`,
         public_id: file.filename,
       }));
     }
@@ -73,7 +75,6 @@ export const createSuperhero = async (req: MulterRequest, res: Response) => {
   }
 };
 
-// --- UPDATE ---
 export const updateSuperhero = async (req: MulterRequest, res: Response) => {
   try {
     const hero = await Superhero.findById(req.params.id);
@@ -83,7 +84,7 @@ export const updateSuperhero = async (req: MulterRequest, res: Response) => {
 
     if (req.files && req.files.length) {
       newImages = req.files.map((file) => ({
-        url: `/uploads/${file.filename}`,
+        url: `${BASE_URL}/uploads/${file.filename}`,
         public_id: file.filename,
       }));
       hero.images.push(...newImages);
@@ -98,13 +99,11 @@ export const updateSuperhero = async (req: MulterRequest, res: Response) => {
   }
 };
 
-// --- DELETE HERO ---
 export const deleteSuperhero = async (req: Request, res: Response) => {
   try {
     const hero = await Superhero.findById(req.params.id);
     if (!hero) return res.status(404).json({ error: "Not found" });
 
-    // Видаляємо файли з локальної системи
     for (const img of hero.images) {
       const filePath = path.join(uploadDir, img.public_id);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -117,7 +116,6 @@ export const deleteSuperhero = async (req: Request, res: Response) => {
   }
 };
 
-// --- DELETE IMAGE ---
 export const deleteHeroImage = async (req: Request, res: Response) => {
   try {
     const hero = await Superhero.findById(req.params.id);
