@@ -5,28 +5,50 @@ export interface Superhero {
   origin_description?: string;
   superpowers?: string;
   catch_phrase?: string;
-  images?: { url: string; public_id: string;}[];
+  image?: string | { url: string; public_id: string };
+  images?: { url: string; public_id: string }[];
 }
-
 
 export interface SuperheroesResponse {
   superheroes: Superhero[];
   totalPages: number;
 }
 
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const fetchSuperheroes = async (page: number): Promise<SuperheroesResponse> => {
   const response = await fetch(`${API_BASE_URL}/superheroes?page=${page}`);
   if (!response.ok) throw new Error("Failed to fetch superheroes");
-  return response.json();
+  const data = await response.json();
+
+  data.superheroes = data.superheroes.map((hero: Superhero) => {
+    if (hero.images?.length) {
+      hero.images = hero.images.map((img) => ({
+        ...img,
+        url: img.url.startsWith("http") ? img.url : `${API_BASE_URL}${img.url}`,
+      }));
+      hero.image = hero.images[0];
+    }
+    return hero;
+  });
+
+  return data;
 };
 
 export const fetchSuperheroById = async (id: string): Promise<Superhero> => {
   const response = await fetch(`${API_BASE_URL}/superheroes/${id}`);
   if (!response.ok) throw new Error("Failed to fetch superhero");
-  return response.json();
+  const hero = await response.json();
+
+  if (hero.images?.length) {
+    hero.images = hero.images.map((img: any) => ({
+      ...img,
+      url: img.url.startsWith("http") ? img.url : `${API_BASE_URL}${img.url}`,
+    }));
+    hero.image = hero.images[0];
+  }
+
+  return hero;
 };
 
 export const createSuperhero = async (data: FormData): Promise<Superhero> => {
@@ -67,7 +89,7 @@ export const deleteSuperhero = async (id: string): Promise<{ message: string }> 
 export const deleteHeroImage = async (
   heroId: string,
   publicId: string
-): Promise<{ message: string }> => {
+): Promise<any> => {
   const encodedPublicId = encodeURIComponent(publicId);
   const response = await fetch(`${API_BASE_URL}/superheroes/${heroId}/image/${encodedPublicId}`, {
     method: "DELETE",

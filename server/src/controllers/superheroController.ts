@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
-import { Superhero } from '../models/Superhero';
-import { cloudinary } from '../config/cloudinary';
+import { Request, Response } from "express";
+import { Superhero } from "../models/Superhero";
+import path from "path";
+import fs from "fs";
 
 interface IImage {
   url: string;
@@ -8,9 +9,12 @@ interface IImage {
 }
 
 interface MulterRequest extends Request {
-  files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
+  files?: Express.Multer.File[];
 }
 
+const uploadDir = path.join(__dirname, "../uploads");
+
+// --- GET ---
 export const getAllSuperheroes = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = 5;
@@ -18,7 +22,7 @@ export const getAllSuperheroes = async (req: Request, res: Response) => {
   try {
     const total = await Superhero.countDocuments();
     const heroes = await Superhero.find()
-      .select('nickname images')
+      .select("nickname images")
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -41,115 +45,92 @@ export const getAllSuperheroes = async (req: Request, res: Response) => {
 export const getSuperheroById = async (req: Request, res: Response) => {
   try {
     const hero = await Superhero.findById(req.params.id);
-    if (!hero) return res.status(404).json({ error: 'Not found' });
+    if (!hero) return res.status(404).json({ error: "Not found" });
     res.json(hero);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// --- CREATE ---
 export const createSuperhero = async (req: MulterRequest, res: Response) => {
   try {
-    console.log("=== CREATE HERO START ===");
-    console.log("REQ BODY:", JSON.stringify(req.body, null, 2));
-    console.log("REQ FILES:", JSON.stringify(req.files, null, 2));
-
     let newImages: IImage[] = [];
 
-    if (Array.isArray(req.files)) {
-      newImages = (req.files as Express.Multer.File[]).map((file) => ({
-        url: (file as any).path,
-        public_id: (file as any).filename,
-      }));
-    } else if ((req as any).file) {
-      const file = (req as any).file;
-      newImages.push({
-        url: file.path,
+    if (req.files && req.files.length) {
+      newImages = req.files.map((file) => ({
+        url: `/uploads/${file.filename}`,
         public_id: file.filename,
-      });
+      }));
     }
-
-    console.log("NEW IMAGES TO SAVE:", JSON.stringify(newImages, null, 2));
 
     const superhero = new Superhero({ ...req.body, images: newImages });
     await superhero.save();
 
-    console.log("SUPERHERO CREATED:", JSON.stringify(superhero, null, 2));
-    console.log("=== CREATE HERO END ===");
-
     res.status(201).json(superhero);
   } catch (err: any) {
-    console.error("CREATE HERO ERROR:", err);
-    res.status(400).json({ error: err.message, stack: err.stack });
+    res.status(400).json({ error: err.message });
   }
 };
 
+// --- UPDATE ---
 export const updateSuperhero = async (req: MulterRequest, res: Response) => {
   try {
-    console.log("=== UPDATE HERO START ===");
-    console.log("REQ PARAMS:", JSON.stringify(req.params, null, 2));
-    console.log("REQ BODY:", JSON.stringify(req.body, null, 2));
-    console.log("REQ FILES:", JSON.stringify(req.files, null, 2));
-
     const hero = await Superhero.findById(req.params.id);
-    if (!hero) {
-      console.log("HERO NOT FOUND");
-      return res.status(404).json({ error: 'Not found' });
-    }
-
-    console.log("HERO BEFORE UPDATE:", JSON.stringify(hero, null, 2));
+    if (!hero) return res.status(404).json({ error: "Not found" });
 
     let newImages: IImage[] = [];
 
-    if (Array.isArray(req.files)) {
-      newImages = (req.files as Express.Multer.File[]).map((file) => ({
-        url: (file as any).path,
-        public_id: (file as any).filename,
-      }));
-    } else if ((req as any).file) {
-      const file = (req as any).file;
-      newImages.push({
-        url: file.path,
+    if (req.files && req.files.length) {
+      newImages = req.files.map((file) => ({
+        url: `/uploads/${file.filename}`,
         public_id: file.filename,
-      });
+      }));
+      hero.images.push(...newImages);
     }
-
 
     Object.assign(hero, req.body);
     await hero.save();
 
-    console.log("HERO AFTER UPDATE:", JSON.stringify(hero, null, 2));
-    console.log("=== UPDATE HERO END ===");
-
     res.json(hero);
   } catch (err: any) {
-    console.error("UPDATE HERO ERROR:", err);
-    res.status(400).json({ error: err.message, stack: err.stack });
+    res.status(400).json({ error: err.message });
   }
 };
 
-
+// --- DELETE HERO ---
 export const deleteSuperhero = async (req: Request, res: Response) => {
   try {
     const hero = await Superhero.findById(req.params.id);
-    if (!hero) return res.status(404).json({ error: 'Not found' });
+    if (!hero) return res.status(404).json({ error: "Not found" });
 
+    // Видаляємо файли з локальної системи
     for (const img of hero.images) {
-      await cloudinary.uploader.destroy(img.public_id);
+      const filePath = path.join(uploadDir, img.public_id);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
+
     await hero.deleteOne();
-    res.json({ message: 'Hero and images deleted' });
+    res.json({ message: "Hero and images deleted" });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// --- DELETE IMAGE ---
 export const deleteHeroImage = async (req: Request, res: Response) => {
   try {
     const hero = await Superhero.findById(req.params.id);
-    if (!hero) return res.status(404).json({ error: 'Hero not found' });
+    if (!hero) return res.status(404).json({ error: "Hero not found" });
 
-    await cloudinary.uploader.destroy(req.params.publicId);
+    const imgToDelete = hero.images.find(
+      (img) => img.public_id === req.params.publicId
+    );
+    if (!imgToDelete) return res.status(404).json({ error: "Image not found" });
+
+    // Видаляємо локальний файл
+    const filePath = path.join(uploadDir, imgToDelete.public_id);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 
     hero.images = hero.images.filter((img) => img.public_id !== req.params.publicId);
     await hero.save();
