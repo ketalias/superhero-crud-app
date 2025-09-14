@@ -60,10 +60,17 @@ export const createSuperhero = async (req: MulterRequest, res: Response) => {
     let newImages: IImage[] = [];
 
     if (req.files && req.files.length) {
-      newImages = req.files.map((file) => ({
-        url: `${BASE_URL}/uploads/${file.filename}`,
-        public_id: file.filename,
-      }));
+      newImages = (req.files as Express.Multer.File[]).map((file) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        const filePath = path.join(uploadDir, filename);
+        fs.writeFileSync(filePath, file.buffer);
+        return {
+          url: `${BASE_URL}/uploads/${filename}`,
+          public_id: filename,
+        };
+      });
     }
 
     const superhero = new Superhero({ ...req.body, images: newImages });
@@ -83,10 +90,17 @@ export const updateSuperhero = async (req: MulterRequest, res: Response) => {
     let newImages: IImage[] = [];
 
     if (req.files && req.files.length) {
-      newImages = req.files.map((file) => ({
-        url: `${BASE_URL}/uploads/${file.filename}`,
-        public_id: file.filename,
-      }));
+      newImages = (req.files as Express.Multer.File[]).map((file) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        const filePath = path.join(uploadDir, filename);
+        fs.writeFileSync(filePath, file.buffer);
+        return {
+          url: `${BASE_URL}/uploads/${filename}`,
+          public_id: filename,
+        };
+      });
       hero.images.push(...newImages);
     }
 
@@ -126,11 +140,12 @@ export const deleteHeroImage = async (req: Request, res: Response) => {
     );
     if (!imgToDelete) return res.status(404).json({ error: "Image not found" });
 
-    // Видаляємо локальний файл
     const filePath = path.join(uploadDir, imgToDelete.public_id);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 
-    hero.images = hero.images.filter((img) => img.public_id !== req.params.publicId);
+    hero.images = hero.images.filter(
+      (img) => img.public_id !== req.params.publicId
+    );
     await hero.save();
 
     res.json(hero);

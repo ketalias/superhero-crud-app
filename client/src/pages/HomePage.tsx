@@ -1,8 +1,11 @@
 import React from "react";
 import HeroesList from "../components/HeroesList";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div>
       <section className="welcome-section">
@@ -12,11 +15,16 @@ const HeroSection: React.FC = () => {
             <p className="fade-slide delay-1">
               Discover the world of your favorite superheroes and their amazing powers.
             </p>
-            <button className="fade-slide delay-2">Explore Now</button>
+            <button
+              className="fade-slide delay-2"
+              onClick={() => navigate("/admin")}
+            >
+              Explore Now
+            </button>
           </div>
         </div>
       </section>
-      <section>
+      <section id="heroes-list">
         <HeroesList />
       </section>
       <section>
