@@ -41,7 +41,7 @@ const HeroesList: React.FC = () => {
             <h1>Superheroes List</h1>
             <div className="heroes-line">
                 {superheroes.map(hero => (
-                    <SuperheroCard key={hero.id} hero={hero} />
+                    <SuperheroCard key={hero._id} hero={hero} />
                 ))}
             </div>
 

@@ -6,6 +6,7 @@ import superheroRoutes from "./routes/superheroes";
 import { errorHandler } from './middlewares/errorHandler';
 
 
+
 dotenv.config();
 
 const app = express();
@@ -24,3 +25,8 @@ mongoose
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch((err) => console.error(err));
+
+app.use(errorHandler, (req: express.Request, res: express.Response) => {
+  res.status(404).json({ error: "Not Found" });
+});
+

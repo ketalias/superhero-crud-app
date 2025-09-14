@@ -54,12 +54,20 @@ export const createSuperhero = async (req: MulterRequest, res: Response) => {
     console.log("REQ BODY:", JSON.stringify(req.body, null, 2));
     console.log("REQ FILES:", JSON.stringify(req.files, null, 2));
 
-    const newImages: IImage[] = Array.isArray(req.files) && req.files.length > 0
-      ? req.files.map((file: any) => ({
-          url: file.path,
-          public_id: file.filename,
-        }))
-      : [];
+    let newImages: IImage[] = [];
+
+    if (Array.isArray(req.files)) {
+      newImages = (req.files as Express.Multer.File[]).map((file) => ({
+        url: (file as any).path,
+        public_id: (file as any).filename,
+      }));
+    } else if ((req as any).file) {
+      const file = (req as any).file;
+      newImages.push({
+        url: file.path,
+        public_id: file.filename,
+      });
+    }
 
     console.log("NEW IMAGES TO SAVE:", JSON.stringify(newImages, null, 2));
 
@@ -79,26 +87,33 @@ export const createSuperhero = async (req: MulterRequest, res: Response) => {
 export const updateSuperhero = async (req: MulterRequest, res: Response) => {
   try {
     console.log("=== UPDATE HERO START ===");
-    console.log("REQ PARAMS:", req.params);
+    console.log("REQ PARAMS:", JSON.stringify(req.params, null, 2));
     console.log("REQ BODY:", JSON.stringify(req.body, null, 2));
     console.log("REQ FILES:", JSON.stringify(req.files, null, 2));
 
     const hero = await Superhero.findById(req.params.id);
     if (!hero) {
       console.log("HERO NOT FOUND");
-      return res.status(404).json({ error: "Not found" });
+      return res.status(404).json({ error: 'Not found' });
     }
 
     console.log("HERO BEFORE UPDATE:", JSON.stringify(hero, null, 2));
 
-    if (Array.isArray(req.files) && req.files.length > 0) {
-      const newImages: IImage[] = req.files.map((file: any) => ({
+    let newImages: IImage[] = [];
+
+    if (Array.isArray(req.files)) {
+      newImages = (req.files as Express.Multer.File[]).map((file) => ({
+        url: (file as any).path,
+        public_id: (file as any).filename,
+      }));
+    } else if ((req as any).file) {
+      const file = (req as any).file;
+      newImages.push({
         url: file.path,
         public_id: file.filename,
-      }));
-      console.log("NEW IMAGES TO ADD:", JSON.stringify(newImages, null, 2));
-      hero.images.push(...newImages);
+      });
     }
+
 
     Object.assign(hero, req.body);
     await hero.save();
@@ -112,6 +127,7 @@ export const updateSuperhero = async (req: MulterRequest, res: Response) => {
     res.status(400).json({ error: err.message, stack: err.stack });
   }
 };
+
 
 export const deleteSuperhero = async (req: Request, res: Response) => {
   try {

@@ -1,25 +1,53 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
+console.log('🔍 Cloudinary Environment Check:');
+console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? '✅ SET' : '❌ NOT SET');
+console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ SET' : '❌ NOT SET');
+console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ SET' : '❌ NOT SET');
+
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.error('❌ Missing Cloudinary environment variables!');
+  process.exit(1);
+}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+  timeout: 6000,
 });
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => {
+  params: (req, file) => {
     return {
-      folder: "Superheroes", 
-      format: file.mimetype.split("/")[1],
-      public_id: file.originalname.split(".")[0] + "-" + Date.now(),
+      folder: 'Superheroes',
+      allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+      transformation: [
+        { width: 1000, height: 1000, crop: 'limit' }, 
+        { quality: 'auto' }
+      ]
     };
   },
 });
 
+const testCloudinaryConnection = async () => {
+  try {
+    console.log('🔄 Testing Cloudinary connection...');
+    const result = await cloudinary.api.ping();
+    console.log('✅ Cloudinary connection successful:', result);
+    return true;
+  } catch (error) {
+    console.error('❌ Cloudinary connection failed:', error);
+    return false;
+  }
+};
 
-export { cloudinary, storage };
+testCloudinaryConnection();
+
+export { cloudinary, storage, testCloudinaryConnection };
