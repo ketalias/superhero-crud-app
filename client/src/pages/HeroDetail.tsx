@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { fetchSuperheroById, deleteSuperhero } from "../services/api";
+import { useParams, useNavigate } from "react-router-dom";
+import { fetchSuperheroById, deleteSuperhero, deleteHeroImage } from "../services/api";
 import type { Superhero } from "../services/api";
 import HeroEditForm from "../components/HeroEditForm";
 
@@ -23,8 +23,11 @@ const HeroDetail: React.FC = () => {
                     const data = await fetchSuperheroById(id);
                     setHero(data);
                     setCurrentImageIndex(0);
+                } else {
+                    console.error("No hero ID provided");
                 }
             } catch (err: any) {
+                console.error("Error fetching hero:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -56,17 +59,27 @@ const HeroDetail: React.FC = () => {
         }
     };
 
-    // const handleDeleteImage = async (imageId: string) => {
-    //     if (!id) return;
-    //     if (window.confirm("Видалити це фото?")) {
-    //         await deleteHeroImage(id, imageId);
-    //         setHero(prev => {
-    //             if (!prev) return prev;
-    //             return { ...prev, images: prev.images?.filter(img => img.id !== imageId) };
-    //         });
-    //         setCurrentImageIndex(0);
-    //     }
-    // };
+    const handleDeleteImage = async (imageId: string) => {
+        if (!id || !imageId || !images[currentImageIndex]) {
+            console.error("Invalid hero ID or image ID");
+            return;
+        }
+        if (window.confirm("Are you sure?")) {
+            try {
+                await deleteHeroImage(id, imageId);
+                setHero(prev => {
+                    if (!prev) return prev;
+                    return { ...prev, images: prev.images?.filter(img => img.public_id !== imageId) };
+                });
+                setCurrentImageIndex(0);
+            } catch (err: any) {
+                console.error("Failed to delete image:", err.message);
+                setError(err.message);
+                const data = await fetchSuperheroById(id);
+                setHero(data);
+            }
+        }
+    };
 
     if (loading) return <div className="status">Loading...</div>;
     if (error) return <div className="status error">{error}</div>;
@@ -76,7 +89,6 @@ const HeroDetail: React.FC = () => {
 
     return (
         <div className="hero-detail">
-            <Link to="/" className="back-link">← Back to list</Link>
             <div className="hero-content">
                 <div className="carousel">
                     {images.length > 0 ? (
@@ -89,14 +101,14 @@ const HeroDetail: React.FC = () => {
                             <button onClick={handlePrev} className="carousel-btn prev">◀</button>
                             <button onClick={handleNext} className="carousel-btn next">▶</button>
                             <button
-                                // onClick={() => handleDeleteImage(images[currentImageIndex].id)}
+                                onClick={() => handleDeleteImage(images[currentImageIndex].public_id)}
                                 className="delete-image-btn"
                             >
                                 🗑
                             </button>
                         </div>
                     ) : (
-                        <p>Зображення відсутнє</p>
+                        <p>No Image</p>
                     )}
                 </div>
 

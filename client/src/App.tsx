@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import NavBar from './components/NavBar';
 import HeroDetail from './pages/HeroDetail';
-import AdminCreateHero from './pages/AdminPage';
+import AdminCreateHero from './pages/AdminCreateHero';
 
 function App() {
   return (

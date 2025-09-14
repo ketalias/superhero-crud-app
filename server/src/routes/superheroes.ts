@@ -19,11 +19,19 @@ const upload = multer({ storage });
 router.get('/', getAllSuperheroes);
 router.get('/:id', getSuperheroById);
 router.post(
-  '/',
-  upload.array('images', 5), 
-  validateFile,              
-  validateSuperhero,        
-  createSuperhero            
+  "/",
+  (req, res, next) => {
+    console.log("Incoming request...");
+    next();
+  },
+  upload.array("images", 5),
+  (req, res, next) => {
+    console.log("FILES AFTER MULTER:", req.files);
+    next();
+  },
+  validateFile,
+  validateSuperhero,
+  createSuperhero
 );
 router.put(
   '/:id',

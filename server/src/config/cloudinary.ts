@@ -12,10 +12,14 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: (req, file) => ({
-    public_id: `Superheroes/${file.originalname.split('.')[0]}`,
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-  }),
+  params: async (req, file) => {
+    return {
+      folder: "Superheroes", 
+      format: file.mimetype.split("/")[1],
+      public_id: file.originalname.split(".")[0] + "-" + Date.now(),
+    };
+  },
 });
+
 
 export { cloudinary, storage };

@@ -5,9 +5,9 @@ import Footer from "../components/Footer";
 const HeroSection: React.FC = () => {
   return (
     <div>
-      <section className="hero-section">
-        <div className="hero-overlay">
-          <div className="hero-content">
+      <section className="welcome-section">
+        <div className="welcome-overlay">
+          <div className="welcome-content">
             <h1 className="fade-slide">Superhero <span className="db">Database</span></h1>
             <p className="fade-slide delay-1">
               Discover the world of your favorite superheroes and their amazing powers.

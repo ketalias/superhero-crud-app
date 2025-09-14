@@ -1,114 +1,155 @@
 .hero-detail {
+  background-color: #191919;
+  color: #e0e0e0;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  justify-content: center;
   align-items: center;
-  font-family: "Arial", sans-serif;
-}
-
-.back-link {
-  display: inline-block;
-  margin-bottom: 20px;
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
+  justify-content: center;
 }
 
 .hero-content {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Карусель */
 .carousel {
-  flex: 1 1 300px;
+  flex: 1;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
 }
 
 .carousel-container {
   position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 3;
+  max-height: 550px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  background-color: #262626;
 }
 
 .hero-image {
-  width: 300px;
-  height: 300px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s ease;
 }
 
 .carousel-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: #ff3b3b;
-  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  color: #e0e0e0;
   border: none;
-  padding: 8px 12px;
+  padding: 0.5rem;
+  font-size: 1.2rem;
   cursor: pointer;
   border-radius: 50%;
-  font-size: 18px;
-  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .carousel-btn.prev {
-  left: -20px;
+  left: 10px;
 }
+
 .carousel-btn.next {
-  right: -20px;
+  right: 10px;
+}
+
+.carousel-btn:hover {
+  background: #ff3b3b;
+  transform: translateY(-50%) scale(1.1);
 }
 
 .delete-image-btn {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #e0e0e0;
   border: none;
-  padding: 4px 8px;
+  padding: 0.5rem;
+  font-size: 1rem;
   cursor: pointer;
   border-radius: 4px;
-  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.delete-image-btn:hover {
+  background: #ff3b3b;
+  transform: scale(1.1);
 }
 
 .hero-info {
-  flex: 1 1 300px;
+  flex: 1;
+  min-width: 300px;
+  padding: 1.5rem;
+  background-color: #262626;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 1rem;
 }
 
 .nickname {
-  display: inline-block;
-  background-color: #ff3b3b;
+  font-size: 2.5rem;
+  font-weight: 700;
   color: #fff;
-  padding: 10px 20px;
-  font-size: 28px;
-  font-weight: bold;
-  transform: skewX(-20deg);
-  margin-bottom: 10px;
+  background: linear-gradient(45deg, #ff3b3b, #ff6666);
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  transform: skewX(-15deg);
+  display: inline-block;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .nickname span {
   display: inline-block;
-  transform: skewX(20deg);
+  transform: skewX(15deg);
+}
+
+.hero-info p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0.5rem 0;
+}
+
+.hero-info strong {
+  color: #ff3b3b;
 }
 
 .hero-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .edit-btn,
 .delete-btn {
-  padding: 8px 12px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
   border: none;
-  cursor: pointer;
   border-radius: 5px;
-  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .edit-btn {
@@ -118,6 +159,7 @@
 
 .edit-btn:hover {
   background-color: #0056b3;
+  transform: translateY(-2px);
 }
 
 .delete-btn {
@@ -127,13 +169,79 @@
 
 .delete-btn:hover {
   background-color: #c70000;
+  transform: translateY(-2px);
 }
 
 .status {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 2rem;
 }
 
 .status.error {
-  color: red;
+  color: #ff3b3b;
+}
+
+@media (max-width: 768px) {
+  .hero-detail {
+    padding: 1rem;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .carousel {
+    max-width: 100%;
+  }
+
+  .carousel-container {
+    max-height: 300px;
+  }
+
+  .hero-info {
+    padding: 1rem;
+  }
+
+  .nickname {
+    font-size: 1.8rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-btn {
+    padding: 0.4rem;
+    font-size: 1rem;
+  }
+
+  .carousel-btn.prev {
+    left: 5px;
+  }
+
+  .carousel-btn.next {
+    right: 5px;
+  }
+
+  .delete-image-btn {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+  }
+
+  .nickname {
+    font-size: 1.5rem;
+  }
 }

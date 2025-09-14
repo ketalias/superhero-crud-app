@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { Superhero } from "../services/api";
 import { updateSuperhero } from "../services/api";
 
@@ -16,8 +16,28 @@ const HeroEditForm: React.FC<HeroEditFormProps> = ({ hero, onClose, onUpdate }) 
         superpowers: hero.superpowers || "",
         catch_phrase: hero.catch_phrase || "",
     });
+    const [files, setFiles] = useState<File[]>([]);
+    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const fileArray = Array.from(e.target.files);
+            setFiles(prev => [...prev, ...fileArray]);
+        }
+    };
+
+    useEffect(() => {
+        const urls = files.map(file => URL.createObjectURL(file));
+        setPreviewUrls(urls);
+
+        return () => urls.forEach(url => URL.revokeObjectURL(url));
+    }, [files]);
+
+    const handleRemoveFile = (index: number) => {
+        setFiles(prev => prev.filter((_, i) => i !== index));
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,8 +48,6 @@ const HeroEditForm: React.FC<HeroEditFormProps> = ({ hero, onClose, onUpdate }) 
         setLoading(true);
         setError(null);
         try {
-            if (!hero) throw new Error("Hero is missing");
-
             const heroId = hero._id;
             if (!heroId) throw new Error("Hero ID is missing");
 
@@ -39,24 +57,24 @@ const HeroEditForm: React.FC<HeroEditFormProps> = ({ hero, onClose, onUpdate }) 
             formData.append("origin_description", form.origin_description);
             formData.append("superpowers", form.superpowers);
             formData.append("catch_phrase", form.catch_phrase);
-            formData.append("id", heroId);
+
+            files.forEach(file => formData.append("images", file));
 
             const updatedHero = await updateSuperhero(heroId, formData);
             onUpdate(updatedHero);
             onClose();
         } catch (err: any) {
+            console.error("Error updating hero:", err);
             setError(err.message);
         } finally {
             setLoading(false);
         }
     };
 
-
-
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h2>Редагувати героя</h2>
+                <h2>Update Superhero</h2>
                 <form onSubmit={handleSubmit} className="edit-form">
                     <label>
                         Nickname:
@@ -79,10 +97,28 @@ const HeroEditForm: React.FC<HeroEditFormProps> = ({ hero, onClose, onUpdate }) 
                         <input type="text" name="catch_phrase" value={form.catch_phrase} onChange={handleChange} />
                     </label>
 
+                    <label>
+                        Add Images:
+                        <input type="file" accept="image/*" multiple onChange={handleFileChange} />
+                    </label>
+
+                    {previewUrls.length > 0 && (
+                        <div className="preview-container">
+                            {previewUrls.map((url, idx) => (
+                                <div key={idx} className="preview-item">
+                                    <img src={url} alt={`preview-${idx}`} />
+                                    <button type="button" onClick={() => handleRemoveFile(idx)}>🗑</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                     {error && <p className="form-error">{error}</p>}
 
                     <div className="form-buttons">
-                        <button type="submit" disabled={loading}>Save</button>
+                        <button type="submit" disabled={loading}>
+                            {loading ? "Saving..." : "Save"}
+                        </button>
                         <button type="button" onClick={onClose}>Cancel</button>
                     </div>
                 </form>
